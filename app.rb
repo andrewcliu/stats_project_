@@ -2,6 +2,9 @@ require 'sinatra'
 require 'roo'
 require 'json'
 
+set :bind, '0.0.0.0'
+set :port, ENV['PORT'] || 4567
+
 DATA_FILE = 'cleaned_agprices.xlsx' # Path to the cleaned Excel file
 
 # Function to normalize names directly
