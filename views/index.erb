@@ -22,7 +22,28 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="text-center">Year-over-Year Product Prices</h1>
+    <div class='text-center'>
+      <h1>Cardinal Group #8</h1>
+    </div>
+    <div class='row'>
+      <div class='col-md-2'>
+        <h2>Team</h2>
+        <ol>
+          <li>Rachel K.</li>
+          <li>Ashton D.</li>
+          <li>Stephen L.</li>
+          <li>Andrew L.</li>
+        </ol>
+      </div>
+      <div class='col-md-8'>
+        <p>
+          Data is being pulled from an excel sheet that's within the root of this folder and converted into an API being served over at https://stats-project.onrender.com/products
+        </p>
+        <p>
+          On click of the radio button would call another API: https://stats-project.onrender.com/chart-data/:product which would display datapoints on graph.
+        </p>
+      </div>
+    </div>
     <div class="row">
       <div class="col-md-2">
         <h2>Products</h2>
@@ -31,6 +52,7 @@
         </form>
       </div>
       <div class="col-md-10">
+        <h2 class="text-center">Year-over-Year Product Prices</h2>
         <div id="chart-container" class="p-3 border rounded bg-light">
           <canvas id="chart"></canvas>
         </div>
