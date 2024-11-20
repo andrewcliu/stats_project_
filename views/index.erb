@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Year-over-Year Product Prices</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- Chart.js -->
+
+  <style>
+    .scrollable-form {
+      height: 600px; /* Fixed height */
+      overflow-y: auto; /* Vertical scrolling */
+      border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+      padding: 10px; /* Optional: Add padding inside the form */
+      background-color: #f9f9f9; /* Optional: Light background for contrast */
+      border-radius:5px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1 class="text-center">Year-over-Year Product Prices</h1>
+    <div class="row">
+      <div class="col-md-2">
+        <h2>Products</h2>
+        <form id="product-form" class="scrollable-form">
+          <!-- Radio buttons will be dynamically added here -->
+        </form>
+      </div>
+      <div class="col-md-10">
+        <div id="chart-container" class="p-3 border rounded bg-light">
+          <canvas id="chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+qoFu98CdKNVfQx04UCBIg3gTjwKc"
+    crossorigin="anonymous"
+  ></script>
+
+  <script>
+    let chart;
+
+    // Fetch and display product names as radio buttons
+    async function fetchProducts() {
+      const response = await fetch('/products');
+      const products = await response.json();
+
+      const form = document.getElementById('product-form');
+      products.forEach(product => {
+        const label = document.createElement('label');
+        label.classList.add('list-group-item');
+        label.innerHTML = `
+          <input type="radio" name="product" value="${product}" class="form-check-input me-2">
+          ${product.charAt(0).toUpperCase() + product.slice(1)}
+        `;
+        form.appendChild(label);
+      });
+
+      // Add event listener to the form
+      form.addEventListener('change', (event) => {
+        if (event.target.name === 'product') {
+          fetchAndRenderChart(event.target.value);
+        }
+      });
+    }
+
+    // Fetch and render the chart for a specific product
+    async function fetchAndRenderChart(product) {
+      const response = await fetch(`/chart-data/${product}`);
+      const data = await response.json();
+
+      // Prepare chart data
+      const labels = Object.keys(data).sort(); // Years as labels
+      const prices = labels.map(year => data[year]?.RetailPrice || 0); // Retail prices per year
+
+      // Clear the existing chart
+      if (chart) {
+        chart.destroy();
+      }
+
+      // Render the chart
+      const ctx = document.getElementById('chart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: `${product.charAt(0).toUpperCase() + product.slice(1)} Retail Prices`,
+            data: prices,
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Retail Price (USD)'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Year'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            title: {
+              display: true,
+              text: `Year-over-Year Prices for ${product.charAt(0).toUpperCase() + product.slice(1)}`
+            }
+          }
+        }
+      });
+    }
+
+    // Fetch products on page load
+    fetchProducts();
+  </script>
+</body>
+</html>
